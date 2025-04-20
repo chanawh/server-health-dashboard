@@ -2,7 +2,7 @@
 import api from './api';
 
 // Auth endpoints
-export const login = (credentials) => api.post('/users/login', credentials);
+export const login = (credentials) => api.post('/login', credentials);
 export const register = (data) => api.post('/register', data);
 
 // User CRUD
