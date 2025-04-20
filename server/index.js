@@ -1,25 +1,32 @@
+// server.js or index.js
+
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const connectDB = require('./config/db'); // custom DB connection
 const serverRoutes = require('./routes/serverRoutes');
-const userRoutes = require('./routes/userRoutes'); // ← import user routes
+const userRoutes = require('./routes/userRoutes'); // user routes
+const authRoutes = require('./routes/authRoutes');
 
+
+// Load environment variables
 dotenv.config();
 
+// Initialize express app
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173' }));  // Allow your frontend to access the backend
-app.use(express.json());
 
-// Connect to DB
+// Middleware
+app.use(cors({ origin: 'http://localhost:5173' })); // allow frontend
+app.use(express.json()); // parse JSON
+
+// Connect to MongoDB
 connectDB();
 
-// Base Routes
-// app.use('/', serverRoutes);
-app.use('/api', serverRoutes);  // <-- Map the /api path to the serverRoutes
+// Routes
+app.use('/api', serverRoutes); // general server routes
+app.use('/api/users', userRoutes); // user-specific routes
 
-// API Routes
-app.use('/api/users', userRoutes); // ← now handles GET/POST for users
+app.use('/api', authRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

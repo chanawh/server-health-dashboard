@@ -1,16 +1,61 @@
-import React from 'react';
+// client/src/pages/Login.jsx
+import { useState } from 'react';
+import { login } from '../services/userService';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+export default function Login() {
+  const [form, setForm] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const res = await login(form);
+      const { token, user } = res.data;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Invalid credentials or access denied');
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center h-full">
-      <div className="bg-white p-8 shadow-lg rounded w-96">
-        <h2 className="text-xl font-semibold mb-4">Admin Login</h2>
-        <input type="text" placeholder="Username" className="w-full mb-3 p-2 border rounded" />
-        <input type="password" placeholder="Password" className="w-full mb-3 p-2 border rounded" />
-        <button className="w-full bg-blue-500 text-white p-2 rounded">Login</button>
-      </div>
+    <div>
+      <h2>Login</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Username</label>
+          <input
+            type="text"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Password</label>
+          <input
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
-};
-
-export default Login;
+}
