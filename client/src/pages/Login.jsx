@@ -4,7 +4,7 @@ import { login } from '../services/userService';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -12,15 +12,31 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+  
+    // Log submitted form data
+    console.log('Submitted login form:', form);
+  
+    // Validate email format
+    if (!validateEmail(form.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+  
     try {
       const res = await login(form);
       const { token, user } = res.data;
-
-      localStorage.setItem('token', token);
+      console.log('🟢 Login response:', res.data);
+        
+      // Login.jsx
+      localStorage.setItem('authToken', token); // ✅ match what ProtectedRoute is looking for
       localStorage.setItem('user', JSON.stringify(user));
 
       navigate('/dashboard');
@@ -35,11 +51,11 @@ export default function Login() {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Username</label>
+          <label>Email</label>
           <input
-            type="text"
-            name="username"
-            value={form.username}
+            type="email"
+            name="email"
+            value={form.email}
             onChange={handleChange}
             required
           />
